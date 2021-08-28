@@ -221,6 +221,8 @@ return [
             'status_helper'        => ' ',
             'vacation_type'        => 'Vacation Type',
             'vacation_type_helper' => ' ',
+            'user'                 => 'User',
+            'user_helper'          => ' ',
         ],
     ],
     'setting' => [

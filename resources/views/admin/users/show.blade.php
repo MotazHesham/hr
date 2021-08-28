@@ -167,8 +167,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#user_user_alerts" role="tab" data-toggle="tab">
-                {{ trans('cruds.userAlert.title') }}
+            <a class="nav-link" href="#user_vacation_requests" role="tab" data-toggle="tab">
+                {{ trans('cruds.vacationRequest.title') }}
             </a>
         </li>
     </ul>
@@ -188,8 +188,8 @@
         <div class="tab-pane" role="tabpanel" id="user_rewards">
             @includeIf('admin.users.relationships.userRewards', ['rewards' => $user->userRewards])
         </div>
-        <div class="tab-pane" role="tabpanel" id="user_user_alerts">
-            @includeIf('admin.users.relationships.userUserAlerts', ['userAlerts' => $user->userUserAlerts])
+        <div class="tab-pane" role="tabpanel" id="user_vacation_requests">
+            @includeIf('admin.users.relationships.userVacationRequests', ['vacationRequests' => $user->userVacationRequests])
         </div>
     </div>
 </div>

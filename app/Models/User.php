@@ -101,9 +101,9 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Reward::class, 'user_id', 'id');
     }
 
-    public function userUserAlerts()
+    public function userVacationRequests()
     {
-        return $this->belongsToMany(UserAlert::class);
+        return $this->hasMany(VacationRequest::class, 'user_id', 'id');
     }
 
     public function getEmailVerifiedAtAttribute($value)

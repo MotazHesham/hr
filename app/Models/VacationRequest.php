@@ -33,6 +33,7 @@ class VacationRequest extends Model
         'end_date',
         'status',
         'vacation_type_id',
+        'user_id',
         'created_at',
         'updated_at',
         'deleted_at',
@@ -61,6 +62,11 @@ class VacationRequest extends Model
     public function vacation_type()
     {
         return $this->belongsTo(VacationsType::class, 'vacation_type_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     protected function serializeDate(DateTimeInterface $date)
