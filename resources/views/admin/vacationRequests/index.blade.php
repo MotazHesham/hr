@@ -40,6 +40,9 @@
                         {{ trans('cruds.vacationRequest.fields.vacation_type') }}
                     </th>
                     <th>
+                        {{ trans('cruds.vacationRequest.fields.user') }}
+                    </th>
+                    <th>
                         &nbsp;
                     </th>
                 </tr>
@@ -101,6 +104,7 @@
 { data: 'end_date', name: 'end_date' },
 { data: 'status', name: 'status' },
 { data: 'vacation_type_name', name: 'vacation_type.name' },
+{ data: 'user_email', name: 'user.email' },
 { data: 'actions', name: '{{ trans('global.actions') }}' }
     ],
     orderCellsTop: true,

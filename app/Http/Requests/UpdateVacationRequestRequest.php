@@ -35,6 +35,10 @@ class UpdateVacationRequestRequest extends FormRequest
                 'required',
                 'integer',
             ],
+            'user_id' => [
+                'required',
+                'integer',
+            ],
         ];
     }
 }

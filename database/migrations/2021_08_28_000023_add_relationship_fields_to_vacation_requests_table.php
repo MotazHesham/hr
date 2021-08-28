@@ -11,6 +11,8 @@ class AddRelationshipFieldsToVacationRequestsTable extends Migration
         Schema::table('vacation_requests', function (Blueprint $table) {
             $table->unsignedBigInteger('vacation_type_id');
             $table->foreign('vacation_type_id', 'vacation_type_fk_4744130')->references('id')->on('vacations_types');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id', 'user_fk_4744255')->references('id')->on('users');
         });
     }
 }

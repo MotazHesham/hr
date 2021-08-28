@@ -63,6 +63,14 @@
                             {{ $vacationRequest->vacation_type->name ?? '' }}
                         </td>
                     </tr>
+                    <tr>
+                        <th>
+                            {{ trans('cruds.vacationRequest.fields.user') }}
+                        </th>
+                        <td>
+                            {{ $vacationRequest->user->email ?? '' }}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <div class="form-group">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyVacationRequestRequest;
 use App\Http\Requests\StoreVacationRequestRequest;
 use App\Http\Requests\UpdateVacationRequestRequest;
+use App\Models\User;
 use App\Models\VacationRequest;
 use App\Models\VacationsType;
 use Gate;
@@ -20,7 +21,7 @@ class VacationRequestsController extends Controller
         abort_if(Gate::denies('vacation_request_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->ajax()) {
-            $query = VacationRequest::with(['vacation_type'])->select(sprintf('%s.*', (new VacationRequest())->table));
+            $query = VacationRequest::with(['vacation_type', 'user'])->select(sprintf('%s.*', (new VacationRequest())->table));
             $table = Datatables::of($query);
 
             $table->addColumn('placeholder', '&nbsp;');
@@ -55,7 +56,11 @@ class VacationRequestsController extends Controller
                 return $row->vacation_type ? $row->vacation_type->name : '';
             });
 
-            $table->rawColumns(['actions', 'placeholder', 'vacation_type']);
+            $table->addColumn('user_email', function ($row) {
+                return $row->user ? $row->user->email : '';
+            });
+
+            $table->rawColumns(['actions', 'placeholder', 'vacation_type', 'user']);
 
             return $table->make(true);
         }
@@ -69,7 +74,9 @@ class VacationRequestsController extends Controller
 
         $vacation_types = VacationsType::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        return view('admin.vacationRequests.create', compact('vacation_types'));
+        $users = User::pluck('email', 'id')->prepend(trans('global.pleaseSelect'), '');
+
+        return view('admin.vacationRequests.create', compact('vacation_types', 'users'));
     }
 
     public function store(StoreVacationRequestRequest $request)
@@ -85,9 +92,11 @@ class VacationRequestsController extends Controller
 
         $vacation_types = VacationsType::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $vacationRequest->load('vacation_type');
+        $users = User::pluck('email', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        return view('admin.vacationRequests.edit', compact('vacation_types', 'vacationRequest'));
+        $vacationRequest->load('vacation_type', 'user');
+
+        return view('admin.vacationRequests.edit', compact('vacation_types', 'users', 'vacationRequest'));
     }
 
     public function update(UpdateVacationRequestRequest $request, VacationRequest $vacationRequest)
@@ -101,7 +110,7 @@ class VacationRequestsController extends Controller
     {
         abort_if(Gate::denies('vacation_request_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $vacationRequest->load('vacation_type');
+        $vacationRequest->load('vacation_type', 'user');
 
         return view('admin.vacationRequests.show', compact('vacationRequest'));
     }
