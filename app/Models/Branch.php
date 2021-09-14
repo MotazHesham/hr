@@ -29,8 +29,7 @@ class Branch extends Model implements HasMedia
     protected $dates = [
         'comrl_reg_expiry',
         'chamber_commerce_expiry',
-        'municcipal_license_expiry',
-        'civil_defense_license',
+        'municcipal_license_expiry', 
         'civil_defense_license_expiry',
         'created_at',
         'updated_at',
@@ -99,17 +98,7 @@ class Branch extends Model implements HasMedia
     public function setMuniccipalLicenseExpiryAttribute($value)
     {
         $this->attributes['municcipal_license_expiry'] = $value ? Carbon::createFromFormat(config('panel.date_format'), $value)->format('Y-m-d') : null;
-    }
-
-    public function getCivilDefenseLicenseAttribute($value)
-    {
-        return $value ? Carbon::parse($value)->format(config('panel.date_format')) : null;
-    }
-
-    public function setCivilDefenseLicenseAttribute($value)
-    {
-        $this->attributes['civil_defense_license'] = $value ? Carbon::createFromFormat(config('panel.date_format'), $value)->format('Y-m-d') : null;
-    }
+    } 
 
     public function getCivilDefenseLicenseExpiryAttribute($value)
     {

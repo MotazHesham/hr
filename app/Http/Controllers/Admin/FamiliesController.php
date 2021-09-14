@@ -35,8 +35,12 @@ class FamiliesController extends Controller
     public function store(StoreFamilyRequest $request)
     {
         $family = Family::create($request->all());
+        
+        $user = User::find($family->user_id);
 
-        return redirect()->route('admin.families.index');
+        $families = $user->userFamilies()->orderBy('created_at','desc')->get();
+
+        return view('admin.users.relationships.userFamilies',compact('families','user'));
     }
 
     public function edit(Family $family)
@@ -54,7 +58,11 @@ class FamiliesController extends Controller
     {
         $family->update($request->all());
 
-        return redirect()->route('admin.families.index');
+        $user = User::find($family->user_id);
+
+        $families = $user->userFamilies()->orderBy('created_at','desc')->get();
+
+        return view('admin.users.relationships.userFamilies',compact('families','user'));
     }
 
     public function show(Family $family)
@@ -72,7 +80,11 @@ class FamiliesController extends Controller
 
         $family->delete();
 
-        return back();
+        $user = User::find($family->user_id);
+
+        $families = $user->userFamilies()->orderBy('created_at','desc')->get();
+
+        return view('admin.users.relationships.userFamilies',compact('families','user'));
     }
 
     public function massDestroy(MassDestroyFamilyRequest $request)

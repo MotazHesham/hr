@@ -15,6 +15,7 @@ use Gate;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
+use Alert;
 
 class BranchesController extends Controller
 {
@@ -66,6 +67,7 @@ class BranchesController extends Controller
             Media::whereIn('id', $media)->update(['model_id' => $branch->id]);
         }
 
+        Alert::success(trans('global.flash.created'));
         return redirect()->route('admin.branches.index');
     }
 
@@ -132,6 +134,7 @@ class BranchesController extends Controller
             $branch->vat_registeration_cerftificate->delete();
         }
 
+        Alert::success(trans('global.flash.updated'));
         return redirect()->route('admin.branches.index');
     }
 
@@ -150,6 +153,7 @@ class BranchesController extends Controller
 
         $branch->delete();
 
+        Alert::success(trans('global.flash.deleted'));
         return back();
     }
 

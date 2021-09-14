@@ -12,7 +12,7 @@ class CreateUserDocumentsTable extends Migration
             $table->bigIncrements('id');
             $table->string('title');
             $table->string('number');
-            $table->string('end_date');
+            $table->date('end_date');
             $table->timestamps();
             $table->softDeletes();
         });

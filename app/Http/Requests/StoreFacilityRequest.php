@@ -74,8 +74,8 @@ class StoreFacilityRequest extends FormRequest
                 'date_format:' . config('panel.date_format'),
             ],
             'civil_defense_license' => [
-                'required',
-                'date_format:' . config('panel.date_format'),
+                'required', 
+                'string',
             ],
             'civil_defense_license_expiry' => [
                 'required',

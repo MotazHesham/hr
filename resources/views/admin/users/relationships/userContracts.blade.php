@@ -1,157 +1,138 @@
 @can('contract_create')
-    <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12">
-            <a class="btn btn-success" href="{{ route('admin.contracts.create') }}">
-                {{ trans('global.add') }} {{ trans('cruds.contract.title_singular') }}
-            </a>
-        </div>
-    </div>
+    @include('admin.contracts.partials.create')
 @endcan
 
-<div class="card">
-    <div class="card-header">
-        {{ trans('cruds.contract.title_singular') }} {{ trans('global.list') }}
-    </div>
+    <div class="table-responsive">
+        <table class=" table table-bordered table-striped table-hover">
+            <thead>
+                <tr>
+                    <th width="10">
 
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class=" table table-bordered table-striped table-hover datatable datatable-userContracts">
-                <thead>
-                    <tr>
-                        <th width="10">
+                    </th>
+                    <th>
+                        {{ trans('cruds.contract.fields.id') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.contract.fields.salery') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.contract.fields.start_date') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.contract.fields.end_date') }}
+                    </th>
+                    <th>
+                        {{ trans('cruds.contract.fields.job_tasks') }}
+                    </th> 
+                    <th>
+                        &nbsp;
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($contracts as $key => $contract)
+                    <tr data-entry-id="{{ $contract->id }}">
+                        <td>
 
-                        </th>
-                        <th>
-                            {{ trans('cruds.contract.fields.id') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.contract.fields.salery') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.contract.fields.start_date') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.contract.fields.end_date') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.contract.fields.job_tasks') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.contract.fields.user') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.user.fields.email') }}
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
+                        </td>
+                        <td>
+                            {{ $contract->id ?? '' }}
+                        </td>
+                        <td>
+                            {{ $contract->salery ?? '' }}
+                        </td>
+                        <td>
+                            {{ $contract->start_date ?? '' }}
+                        </td>
+                        <td>
+                            {{ $contract->end_date ?? '' }}
+                        </td>
+                        <td>
+                            {{ $contract->job_tasks ?? '' }}
+                        </td> 
+                        <td> 
+
+                            @can('contract_edit')
+                                <button onclick="editModal('{{ route('admin.contracts.editPartials', $contract->id) }}')" title="{{ trans('global.edit') }}" class="btn btn-outline-success btn-pill action-buttons-edit">
+                                    <i  class="fa fa-edit actions-custom-i"></i>
+                                </button>
+                            @endcan
+
+                            @can('contract_delete') 
+                                <?php $route = route('admin.contracts.destroy', $contract->id); ?>
+                                <button  onclick="deleteConfirmation('{{$route}}','#user_contracts',true)" class="btn btn-outline-danger btn-pill action-buttons-delete">
+                                    <i  class="fa fa-trash actions-custom-i"></i>
+                                </button> 
+                            @endcan  
+
+                        </td>
+
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach($contracts as $key => $contract)
-                        <tr data-entry-id="{{ $contract->id }}">
-                            <td>
-
-                            </td>
-                            <td>
-                                {{ $contract->id ?? '' }}
-                            </td>
-                            <td>
-                                {{ $contract->salery ?? '' }}
-                            </td>
-                            <td>
-                                {{ $contract->start_date ?? '' }}
-                            </td>
-                            <td>
-                                {{ $contract->end_date ?? '' }}
-                            </td>
-                            <td>
-                                {{ $contract->job_tasks ?? '' }}
-                            </td>
-                            <td>
-                                {{ $contract->user->email ?? '' }}
-                            </td>
-                            <td>
-                                {{ $contract->user->email ?? '' }}
-                            </td>
-                            <td>
-                                @can('contract_show')
-                                    <a class="btn btn-xs btn-primary" href="{{ route('admin.contracts.show', $contract->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-                                @endcan
-
-                                @can('contract_edit')
-                                    <a class="btn btn-xs btn-info" href="{{ route('admin.contracts.edit', $contract->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
-                                @endcan
-
-                                @can('contract_delete')
-                                    <form action="{{ route('admin.contracts.destroy', $contract->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
-                                    </form>
-                                @endcan
-
-                            </td>
-
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-</div>
-
+    
 @section('scripts')
 @parent
+
 <script>
-    $(function () {
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('contract_delete')
-  let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
-  let deleteButton = {
-    text: deleteButtonTrans,
-    url: "{{ route('admin.contracts.massDestroy') }}",
-    className: 'btn-danger',
-    action: function (e, dt, node, config) {
-      var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {
-          return $(entry).data('entry-id')
-      });
+    $(document).on('submit','#add-contract',function(event){ 
+		event.preventDefault(); //prevent default action 
+		var post_url = $(this).attr("action"); //get form action url
+		var request_method = $(this).attr("method"); //get form GET/POST method
+		var form_data = $(this).serialize(); //Encode form elements for submission
+        $('#jquery-error-contract').html(null);
+        $('#jquery-error-contract').css('display','none');
+		$.ajax({
+			url:post_url,
+			method:request_method,
+			data:form_data,
+			success:function(data){
+                showFrontendAlert('success', '{{trans('global.flash.created')}}', '');
+                $('#user_contracts').html(null);
+                $('#user_contracts').html(data);
+			},
+            error: function( data ){
+                if(data.status === 422){
+                    $('#jquery-error-contract').css('display','block');
+                    let response = $.parseJSON(data.responseText);
+                    $.each(response.errors, function (key, value){
+                        $('#jquery-error-contract').append("<p> " + value + " </p>");
+                    });
+                }
+            }
+		})
+    })  
 
-      if (ids.length === 0) {
-        alert('{{ trans('global.datatables.zero_selected') }}')
-
-        return
-      }
-
-      if (confirm('{{ trans('global.areYouSure') }}')) {
-        $.ajax({
-          headers: {'x-csrf-token': _token},
-          method: 'POST',
-          url: config.url,
-          data: { ids: ids, _method: 'DELETE' }})
-          .done(function () { location.reload() })
-      }
-    }
-  }
-  dtButtons.push(deleteButton)
-@endcan
-
-  $.extend(true, $.fn.dataTable.defaults, {
-    orderCellsTop: true,
-    order: [[ 1, 'desc' ]],
-    pageLength: 10,
-  });
-  let table = $('.datatable-userContracts:not(.ajaxTable)').DataTable({ buttons: dtButtons })
-  $('a[data-toggle="tab"]').on('shown.bs.tab click', function(e){
-      $($.fn.dataTable.tables(true)).DataTable()
-          .columns.adjust();
-  });
-  
-})
-
+    $(document).on('submit','#edit-contract',function(event){ 
+		event.preventDefault(); //prevent default action 
+		var post_url = $(this).attr("action"); //get form action url
+		var request_method = $(this).attr("method"); //get form GET/POST method
+		var form_data = $(this).serialize(); //Encode form elements for submission
+        $('#jquery-error-edit-modal').html(null);
+        $('#jquery-error-edit-modal').css('display','none');
+		$.ajax({
+			url:post_url,
+			method:request_method,
+			data:form_data,
+			success:function(data){
+                $('#editModal').modal('hide');
+                showFrontendAlert('success', '{{trans('global.flash.updated')}}', '');
+                $('#user_contracts').html(null);
+                $('#user_contracts').html(data);
+			},
+            error: function( data ){
+                if(data.status === 422){
+                    $('#jquery-error-edit-modal').css('display','block');
+                    let response = $.parseJSON(data.responseText);
+                    $.each(response.errors, function (key, value){
+                        $('#jquery-error-edit-modal').append("<p> " + value + " </p>");
+                    });
+                }
+            }
+		})
+    })  
 </script>
+
 @endsection

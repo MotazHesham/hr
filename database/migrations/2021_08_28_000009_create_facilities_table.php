@@ -24,7 +24,7 @@ class CreateFacilitiesTable extends Migration
             $table->date('chamber_commerce_expiry');
             $table->string('municipal_license_num');
             $table->date('municcipal_license_expiry');
-            $table->date('civil_defense_license');
+            $table->string('civil_defense_license');
             $table->date('civil_defense_license_expiry');
             $table->string('facility_num_in_work_office');
             $table->string('facility_num_in_insurance');

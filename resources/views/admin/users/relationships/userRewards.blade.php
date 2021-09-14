@@ -1,18 +1,8 @@
-@can('reward_create')
-    <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12">
-            <a class="btn btn-success" href="{{ route('admin.rewards.create') }}">
-                {{ trans('global.add') }} {{ trans('cruds.reward.title_singular') }}
-            </a>
-        </div>
-    </div>
+@can('reward_create') 
+    @include('admin.rewards.partials.create')
 @endcan
 
-<div class="card">
-    <div class="card-header">
-        {{ trans('cruds.reward.title_singular') }} {{ trans('global.list') }}
-    </div>
-
+<div class="card"> 
     <div class="card-body">
         <div class="table-responsive">
             <table class=" table table-bordered table-striped table-hover datatable datatable-userRewards">
@@ -29,17 +19,14 @@
                         </th>
                         <th>
                             {{ trans('cruds.reward.fields.type') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.reward.fields.user') }}
-                        </th>
+                        </th> 
                         <th>
                             &nbsp;
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($rewards as $key => $reward)
+                    @foreach ($rewards as $key => $reward)
                         <tr data-entry-id="{{ $reward->id }}">
                             <td>
 
@@ -51,32 +38,25 @@
                                 {{ $reward->value ?? '' }}
                             </td>
                             <td>
-                                {{ App\Models\Reward::TYPE_RADIO[$reward->type] ?? '' }}
-                            </td>
-                            <td>
-                                {{ $reward->user->email ?? '' }}
-                            </td>
-                            <td>
-                                @can('reward_show')
-                                    <a class="btn btn-xs btn-primary" href="{{ route('admin.rewards.show', $reward->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-                                @endcan
+                                {{ trans('global.reward_type.'.$reward->type)?? '' }}
+                            </td> 
+                            <td> 
 
                                 @can('reward_edit')
-                                    <a class="btn btn-xs btn-info" href="{{ route('admin.rewards.edit', $reward->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
+                                    <button onclick="editModal('{{ route('admin.rewards.editPartials', $reward->id) }}')"
+                                        title="{{ trans('global.edit') }}"
+                                        class="btn btn-outline-success btn-pill action-buttons-edit">
+                                        <i class="fa fa-edit actions-custom-i"></i>
+                                    </button>
                                 @endcan
-
+        
                                 @can('reward_delete')
-                                    <form action="{{ route('admin.rewards.destroy', $reward->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
-                                    </form>
+                                    <?php $route = route('admin.rewards.destroy', $reward->id); ?>
+                                    <button onclick="deleteConfirmation('{{ $route }}','#user_rewards',true)"
+                                        class="btn btn-outline-danger btn-pill action-buttons-delete">
+                                        <i class="fa fa-trash actions-custom-i"></i>
+                                    </button>
                                 @endcan
-
                             </td>
 
                         </tr>
@@ -88,52 +68,64 @@
 </div>
 
 @section('scripts')
-@parent
-<script>
-    $(function () {
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('reward_delete')
-  let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
-  let deleteButton = {
-    text: deleteButtonTrans,
-    url: "{{ route('admin.rewards.massDestroy') }}",
-    className: 'btn-danger',
-    action: function (e, dt, node, config) {
-      var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {
-          return $(entry).data('entry-id')
-      });
+    @parent
+    <script> 
 
-      if (ids.length === 0) {
-        alert('{{ trans('global.datatables.zero_selected') }}')
+        $(document).on('submit', '#add-reward', function(event) {
+            event.preventDefault(); //prevent default action 
+            var post_url = $(this).attr("action"); //get form action url
+            var request_method = $(this).attr("method"); //get form GET/POST method
+            var form_data = $(this).serialize(); //Encode form elements for submission
+            $('#jquery-error-reward').html(null);
+            $('#jquery-error-reward').css('display', 'none');
+            $.ajax({
+                url: post_url,
+                method: request_method,
+                data: form_data,
+                success: function(data) {
+                    showFrontendAlert('success', '{{ trans('global.flash.created') }}', '');
+                    $('#user_rewards').html(null);
+                    $('#user_rewards').html(data);
+                },
+                error: function(data) {
+                    if (data.status === 422) {
+                        $('#jquery-error-reward').css('display', 'block');
+                        let response = $.parseJSON(data.responseText);
+                        $.each(response.errors, function(key, value) {
+                            $('#jquery-error-reward').append("<p> " + value + " </p>");
+                        });
+                    }
+                }
+            })
+        })
 
-        return
-      }
-
-      if (confirm('{{ trans('global.areYouSure') }}')) {
-        $.ajax({
-          headers: {'x-csrf-token': _token},
-          method: 'POST',
-          url: config.url,
-          data: { ids: ids, _method: 'DELETE' }})
-          .done(function () { location.reload() })
-      }
-    }
-  }
-  dtButtons.push(deleteButton)
-@endcan
-
-  $.extend(true, $.fn.dataTable.defaults, {
-    orderCellsTop: true,
-    order: [[ 1, 'desc' ]],
-    pageLength: 25,
-  });
-  let table = $('.datatable-userRewards:not(.ajaxTable)').DataTable({ buttons: dtButtons })
-  $('a[data-toggle="tab"]').on('shown.bs.tab click', function(e){
-      $($.fn.dataTable.tables(true)).DataTable()
-          .columns.adjust();
-  });
-  
-})
-
-</script>
+        $(document).on('submit', '#edit-reward', function(event) {
+            event.preventDefault(); //prevent default action 
+            var post_url = $(this).attr("action"); //get form action url
+            var request_method = $(this).attr("method"); //get form GET/POST method
+            var form_data = $(this).serialize(); //Encode form elements for submission
+            $('#jquery-error-edit-modal').html(null);
+            $('#jquery-error-edit-modal').css('display', 'none');
+            $.ajax({
+                url: post_url,
+                method: request_method,
+                data: form_data,
+                success: function(data) {
+                    $('#editModal').modal('hide');
+                    showFrontendAlert('success', '{{ trans('global.flash.updated') }}', '');
+                    $('#user_rewards').html(null);
+                    $('#user_rewards').html(data);
+                },
+                error: function(data) {
+                    if (data.status === 422) {
+                        $('#jquery-error-edit-modal').css('display', 'block');
+                        let response = $.parseJSON(data.responseText);
+                        $.each(response.errors, function(key, value) {
+                            $('#jquery-error-edit-modal').append("<p> " + value + " </p>");
+                        });
+                    }
+                }
+            })
+        })
+    </script>
 @endsection

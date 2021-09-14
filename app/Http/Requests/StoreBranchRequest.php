@@ -75,7 +75,7 @@ class StoreBranchRequest extends FormRequest
             ],
             'civil_defense_license' => [
                 'required',
-                'date_format:' . config('panel.date_format'),
+                'string',
             ],
             'civil_defense_license_expiry' => [
                 'required',

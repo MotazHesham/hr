@@ -13,6 +13,7 @@ use Gate;
 use Illuminate\Http\Request;
 use Spatie\MediaLibrary\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
+use Alert;
 
 class FacilitiesController extends Controller
 {
@@ -60,6 +61,7 @@ class FacilitiesController extends Controller
             Media::whereIn('id', $media)->update(['model_id' => $facility->id]);
         }
 
+        Alert::success(trans('global.flash.created'));
         return redirect()->route('admin.facilities.index');
     }
 
@@ -122,6 +124,7 @@ class FacilitiesController extends Controller
             $facility->vat_registeration_cerftificate->delete();
         }
 
+        Alert::success(trans('global.flash.updated'));
         return redirect()->route('admin.facilities.index');
     }
 
@@ -140,6 +143,7 @@ class FacilitiesController extends Controller
 
         $facility->delete();
 
+        Alert::success(trans('global.flash.deleted'));
         return back();
     }
 

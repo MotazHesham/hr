@@ -10,7 +10,8 @@ use App\Models\Contract;
 use App\Models\User;
 use Gate;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Response; 
+use Alert;
 
 class ContractsController extends Controller
 {
@@ -36,6 +37,15 @@ class ContractsController extends Controller
     {
         $contract = Contract::create($request->all());
 
+        if($request->has('partials')){ 
+
+            $user = User::find($contract->user_id);
+
+            $contracts = $user->userContracts()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.userContracts',compact('contracts','user'));
+        }
+        Alert::success(trans('global.flash.created'));
         return redirect()->route('admin.contracts.index');
     }
 
@@ -50,10 +60,31 @@ class ContractsController extends Controller
         return view('admin.contracts.edit', compact('users', 'contract'));
     }
 
+    public function editPartials($id)
+    {
+        abort_if(Gate::denies('contract_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden'); 
+
+        $contract = Contract::findOrFail($id);
+
+        $contract->load('user');
+
+        return view('admin.contracts.partials.edit', compact('contract'));
+    }
+
     public function update(UpdateContractRequest $request, Contract $contract)
     {
         $contract->update($request->all());
 
+        if($request->has('partials')){ 
+            
+            $user = User::find($contract->user_id);
+
+            $contracts = $user->userContracts()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.userContracts',compact('contracts','user'));
+        }
+        
+        Alert::success(trans('global.flash.updated'));
         return redirect()->route('admin.contracts.index');
     }
 
@@ -66,12 +97,23 @@ class ContractsController extends Controller
         return view('admin.contracts.show', compact('contract'));
     }
 
-    public function destroy(Contract $contract)
+    public function destroy(Contract $contract, Request $request)
     {
         abort_if(Gate::denies('contract_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $contract->delete();
 
+
+        if($request->partials == true){ 
+            
+            $user = User::find($contract->user_id);
+
+            $contracts = $user->userContracts()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.userContracts',compact('contracts','user'));
+        }
+        
+        Alert::success(trans('global.flash.deleted'));
         return back();
     }
 

@@ -48,7 +48,11 @@ class UserDocumentsController extends Controller
             Media::whereIn('id', $media)->update(['model_id' => $userDocument->id]);
         }
 
-        return redirect()->route('admin.user-documents.index');
+        $user = User::find($userDocument->user_id);
+
+        $userDocuments = $user->userUserDocuments()->orderBy('created_at','desc')->get();
+
+        return view('admin.users.relationships.userUserDocuments',compact('userDocuments','user')); 
     }
 
     public function edit(UserDocument $userDocument)
@@ -60,7 +64,7 @@ class UserDocumentsController extends Controller
         $userDocument->load('user');
 
         return view('admin.userDocuments.edit', compact('users', 'userDocument'));
-    }
+    } 
 
     public function update(UpdateUserDocumentRequest $request, UserDocument $userDocument)
     {
@@ -77,7 +81,11 @@ class UserDocumentsController extends Controller
             $userDocument->file->delete();
         }
 
-        return redirect()->route('admin.user-documents.index');
+        $user = User::find($userDocument->user_id);
+
+        $userDocuments = $user->userUserDocuments()->orderBy('created_at','desc')->get();
+
+        return view('admin.users.relationships.userUserDocuments',compact('userDocuments','user')); 
     }
 
     public function show(UserDocument $userDocument)
@@ -95,7 +103,11 @@ class UserDocumentsController extends Controller
 
         $userDocument->delete();
 
-        return back();
+        $user = User::find($userDocument->user_id);
+
+        $userDocuments = $user->userUserDocuments()->orderBy('created_at','desc')->get();
+
+        return view('admin.users.relationships.userUserDocuments',compact('userDocuments','user')); 
     }
 
     public function massDestroy(MassDestroyUserDocumentRequest $request)

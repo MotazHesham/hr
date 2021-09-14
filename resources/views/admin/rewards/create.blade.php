@@ -24,7 +24,7 @@
                 @foreach(App\Models\Reward::TYPE_RADIO as $key => $label)
                     <div class="form-check {{ $errors->has('type') ? 'is-invalid' : '' }}">
                         <input class="form-check-input" type="radio" id="type_{{ $key }}" name="type" value="{{ $key }}" {{ old('type', '') === (string) $key ? 'checked' : '' }} required>
-                        <label class="form-check-label" for="type_{{ $key }}">{{ $label }}</label>
+                        <label class="form-check-label" for="type_{{ $key }}">{{ trans('global.reward_type.'.$key) }}</label>
                     </div>
                 @endforeach
                 @if($errors->has('type'))

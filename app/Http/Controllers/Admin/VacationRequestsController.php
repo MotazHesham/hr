@@ -13,6 +13,7 @@ use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use Alert;
 
 class VacationRequestsController extends Controller
 {
@@ -83,6 +84,16 @@ class VacationRequestsController extends Controller
     {
         $vacationRequest = VacationRequest::create($request->all());
 
+        if($request->has('partials')){ 
+            
+            $user = User::find($vacationRequest->user_id);
+
+            $vacationRequests = $user->userVacationRequests()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.uservacationRequests',compact('vacationRequests','user'));
+        } 
+
+        Alert::success(trans('global.flash.created'));
         return redirect()->route('admin.vacation-requests.index');
     }
 
@@ -99,10 +110,33 @@ class VacationRequestsController extends Controller
         return view('admin.vacationRequests.edit', compact('vacation_types', 'users', 'vacationRequest'));
     }
 
+    public function editPartials($id)
+    {
+        abort_if(Gate::denies('vacation_request_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $vacationRequest = VacationRequest::findOrFail($id);
+
+        $vacation_types = VacationsType::pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');  
+
+        $vacationRequest->load('vacation_type', 'user');
+
+        return view('admin.vacationRequests.partials.edit', compact('vacation_types', 'vacationRequest'));
+    } 
+
     public function update(UpdateVacationRequestRequest $request, VacationRequest $vacationRequest)
     {
+        $user = User::find($vacationRequest->user_id);
+        
         $vacationRequest->update($request->all());
 
+        if($request->has('partials')){  
+            
+            $vacationRequests = $user->userVacationRequests()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.userVacationRequests',compact('vacationRequests','user'));
+        }
+
+        Alert::success(trans('global.flash.updated'));
         return redirect()->route('admin.vacation-requests.index');
     }
 
@@ -115,12 +149,22 @@ class VacationRequestsController extends Controller
         return view('admin.vacationRequests.show', compact('vacationRequest'));
     }
 
-    public function destroy(VacationRequest $vacationRequest)
+    public function destroy(VacationRequest $vacationRequest,Request $request)
     {
         abort_if(Gate::denies('vacation_request_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $vacationRequest->delete();
 
+        if($request->has('partials')){ 
+            
+            $user = User::find($vacationRequest->user_id);
+
+            $vacationRequests = $user->uservacationRequests()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.uservacationRequests',compact('vacationRequests','user'));
+        } 
+
+        Alert::success(trans('global.flash.deleted'));
         return back();
     }
 

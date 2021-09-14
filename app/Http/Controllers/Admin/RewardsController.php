@@ -12,6 +12,7 @@ use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use Alert;
 
 class RewardsController extends Controller
 {
@@ -75,6 +76,16 @@ class RewardsController extends Controller
     {
         $reward = Reward::create($request->all());
 
+        if($request->has('partials')){ 
+            
+            $user = User::find($reward->user_id);
+
+            $rewards = $user->userRewards()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.userRewards',compact('rewards','user'));
+        } 
+
+        Alert::success(trans('global.flash.created'));
         return redirect()->route('admin.rewards.index');
     }
 
@@ -89,10 +100,32 @@ class RewardsController extends Controller
         return view('admin.rewards.edit', compact('users', 'reward'));
     }
 
+    public function editPartials($id)
+    {
+        abort_if(Gate::denies('reward_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $reward = Reward::findOrFail($id);
+
+        $reward->load('user');
+
+        return view('admin.rewards.partials.edit', compact('reward'));
+    }
+
     public function update(UpdateRewardRequest $request, Reward $reward)
     {
+        $user = User::find($reward->user_id);
+        
         $reward->update($request->all());
 
+        if($request->has('partials')){ 
+            
+
+            $rewards = $user->userRewards()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.userRewards',compact('rewards','user'));
+        }
+
+        Alert::success(trans('global.flash.updated'));
         return redirect()->route('admin.rewards.index');
     }
 
@@ -105,12 +138,22 @@ class RewardsController extends Controller
         return view('admin.rewards.show', compact('reward'));
     }
 
-    public function destroy(Reward $reward)
+    public function destroy(Reward $reward, Request $request)
     {
         abort_if(Gate::denies('reward_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $reward->delete();
 
+        if($request->has('partials')){ 
+            
+            $user = User::find($reward->user_id);
+
+            $rewards = $user->userRewards()->orderBy('created_at','desc')->get();
+
+            return view('admin.users.relationships.userRewards',compact('rewards','user'));
+        }
+
+        Alert::success(trans('global.flash.deleted'));
         return back();
     }
 

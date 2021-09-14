@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Spatie\MediaLibrary\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
+use Alert;
 
 class UsersController extends Controller
 {
@@ -96,6 +98,7 @@ class UsersController extends Controller
             Media::whereIn('id', $media)->update(['model_id' => $user->id]);
         }
 
+        Alert::success(trans('global.flash.created'));
         return redirect()->route('admin.users.index');
     }
 
@@ -125,16 +128,76 @@ class UsersController extends Controller
             $user->image->delete();
         }
 
+        Alert::success(trans('global.flash.updated'));
         return redirect()->route('admin.users.index');
     }
 
+
+    public $sources = [
+        [
+            'model'      => '\App\Models\Attendance',
+            'date_field' => 'created_at',
+            'field'      => 'type',
+            'prefix'     => '',
+            'suffix'     => '',
+            'route'      => '#',
+        ],
+        [
+            'model'      => '\App\Models\VacationRequest',
+            'date_field' => 'start_date',
+            'field'      => 'type',
+            'prefix'     => 'أجازة',
+            'suffix'     => '',
+            'route'      => '#',
+        ],
+    ];
     public function show(User $user)
     {
         abort_if(Gate::denies('user_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+
+        $events = [];
+        foreach ($this->sources as $source) {
+            if($source['model'] == '\App\Models\Attendance'){
+                $data = $source['model']::where('user_id',$user->id)->get();
+            }else{
+                $data = $source['model']::where('user_id',$user->id)->where('status','accepted')->get();
+            }
+            foreach ($data as $model) {
+                $crudFieldValue = $model->getAttributes()[$source['date_field']];
+
+                if (!$crudFieldValue) {
+                    continue;
+                }
+                
+                if($source['model'] == '\App\Models\Attendance'){
+                    if($model->type == 'attendance'){
+                        $color = '#45B39D';
+                    }else{
+                        $color = '#566573';
+                    }
+                    $events[] = [
+                        'title' => trim($source['prefix'] . ' (' . trans('global.atttendance_type.'.$model->{$source['field']}) . ') ' . $source['suffix']),
+                        'start' => $crudFieldValue,
+                        'url'   => '#',
+                        'color' => $color
+                    ];
+                }else{
+                    $vacationType = $model->vacation_type->name ?? '';
+                    $events[] = [
+                        'title' => trim($source['prefix'] . ' ' . $vacationType . ' ' . $source['suffix']),
+                        'start' => $crudFieldValue,
+                        'end' =>  $model->getAttributes()['end_date'],
+                        'url'   => '#',
+                        'color' => '#EC7063'
+                    ];
+                }
+            }
+        }
+        
         $user->load('roles', 'userFamilies', 'userUserDocuments', 'userContracts', 'userAttendances', 'userRewards', 'userVacationRequests');
 
-        return view('admin.users.show', compact('user'));
+        return view('admin.users.show', compact('user','events'));
     }
 
     public function destroy(User $user)
@@ -143,6 +206,7 @@ class UsersController extends Controller
 
         $user->delete();
 
+        Alert::success(trans('global.flash.deleted'));
         return back();
     }
 

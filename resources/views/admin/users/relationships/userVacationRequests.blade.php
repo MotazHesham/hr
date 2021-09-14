@@ -1,11 +1,5 @@
 @can('vacation_request_create')
-    <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12">
-            <a class="btn btn-success" href="{{ route('admin.vacation-requests.create') }}">
-                {{ trans('global.add') }} {{ trans('cruds.vacationRequest.title_singular') }}
-            </a>
-        </div>
-    </div>
+    @include('admin.vacationRequests.partials.create')
 @endcan
 
 <div class="card">
@@ -38,17 +32,14 @@
                         </th>
                         <th>
                             {{ trans('cruds.vacationRequest.fields.vacation_type') }}
-                        </th>
-                        <th>
-                            {{ trans('cruds.vacationRequest.fields.user') }}
-                        </th>
+                        </th> 
                         <th>
                             &nbsp;
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($vacationRequests as $key => $vacationRequest)
+                    @foreach ($vacationRequests as $key => $vacationRequest)
                         <tr data-entry-id="{{ $vacationRequest->id }}">
                             <td>
 
@@ -66,34 +57,27 @@
                                 {{ $vacationRequest->end_date ?? '' }}
                             </td>
                             <td>
-                                {{ App\Models\VacationRequest::STATUS_SELECT[$vacationRequest->status] ?? '' }}
+                                {{ trans('global.vacation_status.'.$vacationRequest->status) ?? '' }}
                             </td>
                             <td>
                                 {{ $vacationRequest->vacation_type->name ?? '' }}
-                            </td>
+                            </td> 
                             <td>
-                                {{ $vacationRequest->user->email ?? '' }}
-                            </td>
-                            <td>
-                                @can('vacation_request_show')
-                                    <a class="btn btn-xs btn-primary" href="{{ route('admin.vacation-requests.show', $vacationRequest->id) }}">
-                                        {{ trans('global.view') }}
-                                    </a>
-                                @endcan
-
                                 @can('vacation_request_edit')
-                                    <a class="btn btn-xs btn-info" href="{{ route('admin.vacation-requests.edit', $vacationRequest->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
+                                    <button onclick="editModal('{{ route('admin.vacation-requests.editPartials', $vacationRequest->id) }}')"
+                                        title="{{ trans('global.edit') }}"
+                                        class="btn btn-outline-success btn-pill action-buttons-edit">
+                                        <i class="fa fa-edit actions-custom-i"></i>
+                                    </button>
                                 @endcan
-
+        
                                 @can('vacation_request_delete')
-                                    <form action="{{ route('admin.vacation-requests.destroy', $vacationRequest->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
-                                    </form>
-                                @endcan
+                                    <?php $route = route('admin.vacation-requests.destroy', $vacationRequest->id); ?>
+                                    <button onclick="deleteConfirmation('{{ $route }}','#user_vacation_requests',true)"
+                                        class="btn btn-outline-danger btn-pill action-buttons-delete">
+                                        <i class="fa fa-trash actions-custom-i"></i>
+                                    </button>
+                                @endcan 
 
                             </td>
 
@@ -106,52 +90,63 @@
 </div>
 
 @section('scripts')
-@parent
-<script>
-    $(function () {
-  let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('vacation_request_delete')
-  let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
-  let deleteButton = {
-    text: deleteButtonTrans,
-    url: "{{ route('admin.vacation-requests.massDestroy') }}",
-    className: 'btn-danger',
-    action: function (e, dt, node, config) {
-      var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {
-          return $(entry).data('entry-id')
-      });
+    @parent
+    <script>
+        $(document).on('submit', '#add-vacation', function(event) {
+            event.preventDefault(); //prevent default action 
+            var post_url = $(this).attr("action"); //get form action url
+            var request_method = $(this).attr("method"); //get form GET/POST method
+            var form_data = $(this).serialize(); //Encode form elements for submission
+            $('#jquery-error-vacation').html(null);
+            $('#jquery-error-vacation').css('display', 'none');
+            $.ajax({
+                url: post_url,
+                method: request_method,
+                data: form_data,
+                success: function(data) {
+                    showFrontendAlert('success', '{{ trans('global.flash.created') }}', '');
+                    $('#user_vacation_requests').html(null);
+                    $('#user_vacation_requests').html(data);
+                },
+                error: function(data) {
+                    if (data.status === 422) {
+                        $('#jquery-error-vacation').css('display', 'block');
+                        let response = $.parseJSON(data.responseText);
+                        $.each(response.errors, function(key, value) {
+                            $('#jquery-error-vacation').append("<p> " + value + " </p>");
+                        });
+                    }
+                }
+            })
+        })
 
-      if (ids.length === 0) {
-        alert('{{ trans('global.datatables.zero_selected') }}')
-
-        return
-      }
-
-      if (confirm('{{ trans('global.areYouSure') }}')) {
-        $.ajax({
-          headers: {'x-csrf-token': _token},
-          method: 'POST',
-          url: config.url,
-          data: { ids: ids, _method: 'DELETE' }})
-          .done(function () { location.reload() })
-      }
-    }
-  }
-  dtButtons.push(deleteButton)
-@endcan
-
-  $.extend(true, $.fn.dataTable.defaults, {
-    orderCellsTop: true,
-    order: [[ 1, 'desc' ]],
-    pageLength: 25,
-  });
-  let table = $('.datatable-userVacationRequests:not(.ajaxTable)').DataTable({ buttons: dtButtons })
-  $('a[data-toggle="tab"]').on('shown.bs.tab click', function(e){
-      $($.fn.dataTable.tables(true)).DataTable()
-          .columns.adjust();
-  });
-  
-})
-
-</script>
+        $(document).on('submit', '#edit-vacation', function(event) {
+            event.preventDefault(); //prevent default action 
+            var post_url = $(this).attr("action"); //get form action url
+            var request_method = $(this).attr("method"); //get form GET/POST method
+            var form_data = $(this).serialize(); //Encode form elements for submission
+            $('#jquery-error-edit-modal').html(null);
+            $('#jquery-error-edit-modal').css('display', 'none');
+            $.ajax({
+                url: post_url,
+                method: request_method,
+                data: form_data,
+                success: function(data) {
+                    $('#editModal').modal('hide');
+                    showFrontendAlert('success', '{{ trans('global.flash.updated') }}', '');
+                    $('#user_vacation_requests').html(null);
+                    $('#user_vacation_requests').html(data);
+                },
+                error: function(data) {
+                    if (data.status === 422) {
+                        $('#jquery-error-edit-modal').css('display', 'block');
+                        let response = $.parseJSON(data.responseText);
+                        $.each(response.errors, function(key, value) {
+                            $('#jquery-error-edit-modal').append("<p> " + value + " </p>");
+                        });
+                    }
+                }
+            })
+        })
+    </script>
 @endsection

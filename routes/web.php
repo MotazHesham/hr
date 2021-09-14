@@ -47,10 +47,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Contracts
     Route::delete('contracts/destroy', 'ContractsController@massDestroy')->name('contracts.massDestroy');
+    Route::get('contracts/{id}/editPartials', 'ContractsController@editPartials')->name('contracts.editPartials');
     Route::resource('contracts', 'ContractsController');
 
     // Vacation Requests
     Route::delete('vacation-requests/destroy', 'VacationRequestsController@massDestroy')->name('vacation-requests.massDestroy');
+    Route::get('vacation-requests/{id}/editPartials', 'VacationRequestsController@editPartials')->name('vacation-requests.editPartials');
     Route::resource('vacation-requests', 'VacationRequestsController');
 
     // Facilities
@@ -78,6 +80,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     // Rewards
     Route::delete('rewards/destroy', 'RewardsController@massDestroy')->name('rewards.massDestroy');
+    Route::get('rewards/{id}/editPartials', 'RewardsController@editPartials')->name('rewards.editPartials');
     Route::resource('rewards', 'RewardsController');
 
     Route::get('system-calendar', 'SystemCalendarController@index')->name('systemCalendar');

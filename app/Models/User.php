@@ -76,6 +76,11 @@ class User extends Authenticatable implements HasMedia
         $this->addMediaConversion('preview')->fit('crop', 120, 120);
     }
 
+    public function userUserAlerts()
+    {
+        return $this->belongsToMany(UserAlert::class);
+    }
+
     public function userFamilies()
     {
         return $this->hasMany(Family::class, 'user_id', 'id');

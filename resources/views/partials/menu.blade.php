@@ -25,14 +25,14 @@
                 </a>
                 <ul class="c-sidebar-nav-dropdown-items">
                     @can('permission_access')
-                        <li class="c-sidebar-nav-item">
+                        {{-- <li class="c-sidebar-nav-item">
                             <a href="{{ route("admin.permissions.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/permissions") || request()->is("admin/permissions/*") ? "c-active" : "" }}">
                                 <i class="fa-fw fas fa-unlock-alt c-sidebar-nav-icon">
 
                                 </i>
                                 {{ trans('cruds.permission.title') }}
                             </a>
-                        </li>
+                        </li> --}}
                     @endcan
                     @can('role_access')
                         <li class="c-sidebar-nav-item">
@@ -54,36 +54,6 @@
                             </a>
                         </li>
                     @endcan
-                    @can('audit_log_access')
-                        <li class="c-sidebar-nav-item">
-                            <a href="{{ route("admin.audit-logs.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/audit-logs") || request()->is("admin/audit-logs/*") ? "c-active" : "" }}">
-                                <i class="fa-fw fas fa-file-alt c-sidebar-nav-icon">
-
-                                </i>
-                                {{ trans('cruds.auditLog.title') }}
-                            </a>
-                        </li>
-                    @endcan
-                    @can('family_access')
-                        <li class="c-sidebar-nav-item">
-                            <a href="{{ route("admin.families.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/families") || request()->is("admin/families/*") ? "c-active" : "" }}">
-                                <i class="fa-fw fas fa-users c-sidebar-nav-icon">
-
-                                </i>
-                                {{ trans('cruds.family.title') }}
-                            </a>
-                        </li>
-                    @endcan
-                    @can('user_document_access')
-                        <li class="c-sidebar-nav-item">
-                            <a href="{{ route("admin.user-documents.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/user-documents") || request()->is("admin/user-documents/*") ? "c-active" : "" }}">
-                                <i class="fa-fw fas fa-file-alt c-sidebar-nav-icon">
-
-                                </i>
-                                {{ trans('cruds.userDocument.title') }}
-                            </a>
-                        </li>
-                    @endcan
                     @can('contract_access')
                         <li class="c-sidebar-nav-item">
                             <a href="{{ route("admin.contracts.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/contracts") || request()->is("admin/contracts/*") ? "c-active" : "" }}">
@@ -94,6 +64,16 @@
                             </a>
                         </li>
                     @endcan
+                    @can('audit_log_access')
+                        <li class="c-sidebar-nav-item">
+                            <a href="{{ route("admin.audit-logs.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/audit-logs") || request()->is("admin/audit-logs/*") ? "c-active" : "" }}">
+                                <i class="fa-fw fas fa-file-alt c-sidebar-nav-icon">
+
+                                </i>
+                                {{ trans('cruds.auditLog.title') }}
+                            </a>
+                        </li>
+                    @endcan 
                 </ul>
             </li>
         @endcan
@@ -118,17 +98,7 @@
                     @endcan
                 </ul>
             </li>
-        @endcan
-        @can('attendance_access')
-            <li class="c-sidebar-nav-item">
-                <a href="{{ route("admin.attendances.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/attendances") || request()->is("admin/attendances/*") ? "c-active" : "" }}">
-                    <i class="fa-fw far fa-clock c-sidebar-nav-icon">
-
-                    </i>
-                    {{ trans('cruds.attendance.title') }}
-                </a>
-            </li>
-        @endcan
+        @endcan 
         @can('reward_access')
             <li class="c-sidebar-nav-item">
                 <a href="{{ route("admin.rewards.index") }}" class="c-sidebar-nav-link {{ request()->is("admin/rewards") || request()->is("admin/rewards/*") ? "c-active" : "" }}">
@@ -142,7 +112,7 @@
         @can('setting_access')
             <li class="c-sidebar-nav-dropdown {{ request()->is("admin/facilities*") ? "c-show" : "" }} {{ request()->is("admin/branches*") ? "c-show" : "" }} {{ request()->is("admin/cities*") ? "c-show" : "" }} {{ request()->is("admin/vacations-types*") ? "c-show" : "" }}">
                 <a class="c-sidebar-nav-dropdown-toggle" href="#">
-                    <i class="fa-fw fas fa-ellipsis-h c-sidebar-nav-icon">
+                    <i class="fa-fw fas fa-cog c-sidebar-nav-icon">
 
                     </i>
                     {{ trans('cruds.setting.title') }}
@@ -200,15 +170,7 @@
                     {{ trans('cruds.userAlert.title') }}
                 </a>
             </li>
-        @endcan
-        <li class="c-sidebar-nav-item">
-            <a href="{{ route("admin.systemCalendar") }}" class="c-sidebar-nav-link {{ request()->is("admin/system-calendar") || request()->is("admin/system-calendar/*") ? "c-active" : "" }}">
-                <i class="c-sidebar-nav-icon fa-fw fas fa-calendar">
-
-                </i>
-                {{ trans('global.systemCalendar') }}
-            </a>
-        </li>
+        @endcan 
         @if(file_exists(app_path('Http/Controllers/Auth/ChangePasswordController.php')))
             @can('profile_password_edit')
                 <li class="c-sidebar-nav-item">
